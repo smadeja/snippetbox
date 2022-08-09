@@ -1,3 +1,3 @@
-module github.com/smadeja
+module github.com/smadeja/snippetbox
 
 go 1.19
