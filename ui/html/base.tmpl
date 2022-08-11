@@ -1,0 +1,22 @@
+{{define "base"}}
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>{{template "title" .}} &#183; Snippetbox</title>
+	</head>
+
+	<body>
+		<header>
+			<h1><a href="/">Snippetbox</a></h1>
+		</header>
+
+		<main>{{template "main" .}}</main>
+
+		<footer>
+			Powered by <a href="https://go.dev" target="_blank">Go</a>
+		</footer>
+	</body>
+</html>
+{{end}}
