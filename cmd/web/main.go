@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 	"net/http"
 	"os"
@@ -24,13 +24,13 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dbConn, err := pgx.Connect(context.Background(), *dbURI)
+	dbConnPool, err := pgxpool.Connect(context.Background(), *dbURI)
 
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 
-	defer dbConn.Close(context.Background())
+	defer dbConnPool.Close()
 
 	app := &application{
 		errorLog: errorLog,
