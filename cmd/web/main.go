@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/jackc/pgx/v4"
 	"log"
 	"net/http"
 	"os"
@@ -15,10 +17,20 @@ type application struct {
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
+	dbURI := flag.String("db", "postgres://smadeja@localhost:5432/snippetbox", "PostgreSQL connection URI")
+
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	dbConn, err := pgx.Connect(context.Background(), *dbURI)
+
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
+	defer dbConn.Close(context.Background())
 
 	app := &application{
 		errorLog: errorLog,
@@ -32,7 +44,7 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on %s", *addr)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
 
