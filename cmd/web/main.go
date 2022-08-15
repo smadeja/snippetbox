@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/smadeja/snippetbox/internal/models"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -35,6 +37,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &models.SnippetModel{DB: dbConnPool},
 	}
 
 	srv := &http.Server{
