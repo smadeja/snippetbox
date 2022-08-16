@@ -20,7 +20,7 @@ type SnippetModel struct {
 
 func (m *SnippetModel) Insert(title string, content string, expires int) (string, error) {
 	stmt := "insert into snippets (title, content, created, expires) " +
-		"values ($1, $2, current_timestamp at time zone 'utc', current_timestamp at time zone 'utc' + interval '$3 days')"
+		"values ($1, $2, current_timestamp at time zone 'utc', current_timestamp at time zone 'utc' + interval '1 day' * $3)"
 
 	result, err := m.DB.Exec(context.Background(), stmt, title, content, expires)
 
