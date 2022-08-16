@@ -18,17 +18,19 @@ type SnippetModel struct {
 	DB *pgxpool.Pool
 }
 
-func (m *SnippetModel) Insert(title string, content string, expires int) (string, error) {
+func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
 	stmt := "insert into snippets (title, content, created, expires) " +
-		"values ($1, $2, current_timestamp at time zone 'utc', current_timestamp at time zone 'utc' + interval '1 day' * $3)"
+		"values ($1, $2, current_timestamp at time zone 'utc', current_timestamp at time zone 'utc' + interval '1 day' * $3) " +
+		"returning id"
 
-	result, err := m.DB.Exec(context.Background(), stmt, title, content, expires)
+	var id int
+	err := m.DB.QueryRow(context.Background(), stmt, title, content, expires).Scan(&id)
 
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
-	return string(result), nil
+	return id, nil
 }
 
 func (m *SnippetModel) Get(id int) (*Snippet, error) {
