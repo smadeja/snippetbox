@@ -2,6 +2,8 @@ package models
 
 import (
 	"context"
+	"errors"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"time"
 )
@@ -34,7 +36,22 @@ func (m *SnippetModel) Insert(title string, content string, expires int) (int, e
 }
 
 func (m *SnippetModel) Get(id int) (*Snippet, error) {
-	return nil, nil
+	stmt := "select * from snippets " +
+		"where id = $1 and expires at time zone 'utc' > transaction_timestamp();"
+
+	row := m.DB.QueryRow(context.Background(), stmt, id)
+	s := &Snippet{}
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+
+	return s, nil
 }
 
 func (m *SnippetModel) Latest() ([]*Snippet, error) {
