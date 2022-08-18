@@ -39,9 +39,10 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 	stmt := "select * from snippets " +
 		"where id = $1 and expires at time zone 'utc' > transaction_timestamp();"
 
-	row := m.DB.QueryRow(context.Background(), stmt, id)
 	s := &Snippet{}
-	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+
+	err := m.DB.QueryRow(context.Background(), stmt, id).
+		Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
