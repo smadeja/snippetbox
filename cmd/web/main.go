@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/smadeja/snippetbox/internal/models"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -12,9 +13,10 @@ import (
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *models.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -34,10 +36,16 @@ func main() {
 
 	defer dbConnPool.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippets: &models.SnippetModel{DB: dbConnPool},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		snippets:      &models.SnippetModel{DB: dbConnPool},
+		templateCache: templateCache,
 	}
 
 	srv := &http.Server{
